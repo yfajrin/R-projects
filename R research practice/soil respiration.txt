@@ -1,0 +1,106 @@
+#set the library that will be used
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+
+#set working directory to be in C:/dataset folder where we need to put the dataset
+setwd("C:/dataset/")
+
+#read the data
+soil_data <- read.csv("soil_respiration.csv")
+
+#observe the initial data
+soil_data
+
+#convert the data into long format
+soil_data_long <- gather(soil_data, plots, Rs, X1:X23, factor_key=TRUE)
+#observe the converted data format
+soil_data_long
+
+#create a boxplot of Soil Respiration (Rs) for each crop type and save it to soil_boxplot
+soil_boxplot <- ggplot(soil_data_long) +
+                aes(x = Crop, y = Rs) +
+                geom_boxplot(fill = "blue") +
+                ggtitle("Boxplot of Soil Respiration (Rs) by Crop Type") +
+                xlab("Crop Type") + ylab("Soil Respiration Rate (Rs)")
+                theme_minimal()
+soil_boxplot
+#looks like there are two outliers, one in winter wheat, and one in summer maize
+
+#Two ways of removing outliers
+#First, change the outlier value that looks like a mistake
+#Look at the maximum data that is the outlier
+soil_data_long %>%
+  group_by(Crop) %>%
+  summarise(max = format(round(max(Rs),2), nsmall=2))
+
+#duplicate dataframes, so we can keep the initial data and create another one where the outlier is replaced
+soil_data_long_outliers_replaced <- soil_data_long
+soil_data_long_outliers_replaced[soil_data_long_outliers_replaced == 40.04] <- 4.04
+
+#recreate the boxplot after the outlier is replaced and save it to soil_boxplot2 
+soil_boxplot2 <- ggplot(soil_data_long_outliers_replaced) +
+                aes(x = Crop, y = Rs) +
+                geom_boxplot(fill = "blue") +
+                ggtitle("Boxplot of Soil Respiration (Rs) by Crop Type, Outlier removed") +
+                xlab("Crop Type") + ylab("Soil Respiration Rate (Rs)")
+                theme_minimal()
+soil_boxplot2
+#there is another outlier in summer_maize but it seemed to be a natural value, so we keep it that way
+#it should not be replaced since the next analysis using EVI will require the record
+
+#Second way to remove outliers is to change it to NA
+soil_data_long_outliers_NA <- soil_data_long
+soil_data_long_outliers_NA[soil_data_long_outliers_NA == 40.04] <- NA
+
+#recreate the boxplot after the outlier is set to NA and save it to soil_boxplot3
+soil_boxplot3 <- ggplot(soil_data_long_outliers_NA) +
+                aes(x = Crop, y = Rs) +
+                geom_boxplot(fill = "blue") +
+                ggtitle("Boxplot of Soil Respiration (Rs) by Crop Type, Outlier set to NA") +
+                xlab("Crop Type") + ylab("Soil Respiration Rate (Rs)")
+                theme_minimal()
+soil_boxplot3
+
+
+#Create the density plot using the soil data that the outlier is replaced, save it to soil_density_plot
+soil_density_plot <- ggplot(soil_data_long_outliers_replaced,
+                    aes(x = Rs, colour = Crop, fill = Crop)) +
+                    geom_density(alpha=0.5) +
+                    xlim(1, 7) +
+                    ggtitle("Density Plot of Soil Respiration Rate (Rs) by Crop Type") +
+                    xlab("Soil Respiration Rate (Rs)") + ylab("Density")
+                    
+soil_density_plot                    
+
+#conclusion: both seemed to follow normal distribution bell curve.
+#summer_maize has higher peak, which means that it has smaller standar deviation
+#winter_wheat has relatively lower peak, which means that it has bigger standar deviation
+#summer_maize has relatively higher soil respiratory compared to winter_wheat
+#it can be shown on the summary below
+soil_data_long_outliers_replaced %>%
+  group_by(Crop) %>%
+  summarise(mean = mean(Rs), sd = sd(Rs))
+
+
+#Next, examine how the enhanced vegetation index (EVI) relates to the soil respiration rate
+
+#read the EVI.csv
+EVI_data <- read.csv("EVI.csv")
+EVI_data
+
+#merge the EVI_data and soil_data_long_outliers_replaced
+new1 <- left_join(soil_data_long_outliers_replaced, EVI_data, by=c('Rs'='Rs', 'Crop'='Crop'))
+new1
+
+#look for the relationship between EVI and soil respiratory, save it to EVI_vs_Rs
+EVI_vs_Rs <- ggplot(new1, aes(x = Rs, y = EVI, color = Crop,
+               shape = Crop)) +
+            geom_point(size = 2) + 
+            geom_smooth(method = "lm") +
+            ggtitle("Relationship between Enhanced Vegetation Index (EVI) and Soil Respiratory Rate (Rs) by Crop Type") +
+            xlab("Soil Respiration Rate (Rs)") + ylab("Enhanced Vegetation Index (EVI)")
+EVI_vs_Rs
+
+#Conclusion: it seemed that Rs has a positive relationship with EVI. As Rs get higher, EVI get higher.
+#The relationship is higher in winter_wheat, while it is not significant in summer_maize

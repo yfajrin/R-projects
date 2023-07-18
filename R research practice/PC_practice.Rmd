@@ -1,0 +1,320 @@
+---
+title: 
+author: "Your Name Here"
+date: 'Last updated: `r Sys.Date()`'
+output:
+  html_document:
+    smart: no
+    theme: flatly
+    toc: true
+    toc_float: false
+---
+
+  
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+
+# Agroecosystem Soil Respiration Rates
+
+
+
+We will be working with data from a paper by Huang et al. (2016).  In this study, the authors look at soil respiration in two different agroecosystems, winter wheat and summer maize. Soil respiration is a good indication of the amount of greenhouse gasses being produced, so increased soil respiration by the microbes in the soil, means more greenhouse gasses produced by the soil. We will work with their data to examine how soil respiration varies with different agricultural systems (winter wheat and summer maize).
+
+<div style="width:800px">
+![](https://imgur.com/CwCrXha.png)
+</div>
+
+You will need to perform a series of steps to explore this data. Remember to keep your code clean, well commented and organized. These are very important skills to develop for the future.
+
+Read in the `soil_respiration.csv` data file. Columns represent plots, and each cell contains the respiration rates in each of these plots for each of the crop treatments. Put your data into long-format. The column name for your soil respiration data should be "Rs"
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+Create box plots that shows the trends in soil respiration (`Rs`) between the two different cropping types. Make sure to plot the raw data over the boxplots.  Also make sure your axes are understandable to a general audience - others may not know what `Rs` is.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+Reflect on the data. Does everything seem okay? Are outliers present?
+
+> 
+
+There are two ways you could remove that outlier: either change the value (looks like that might have been entered as 40.04 instead of 4.04), or remove the row entirely by adding an NA as the observation instead of a value. Demonstrate that you can do both below. Recreate the boxplot and data figure to demonstrate that you have in corrected the error and the outlier no longer exists (you can do this with either of the solutions you have created.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+For some extra practice graphing, create density plots of the distributions of `Rs` for both the crop types. You should be able to see both data distributions on the same plot. 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+What can you conclude about the distributions of the data?
+
+> 
+
+Summarize this data by calculating a mean and standard deviation for soil respiration for each crop type.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+Next we want to examine how the enhanced vegetation index (EVI) relates to the soil respiration rate. EVI is a measurement calculated from satellites so the goal is to see if satellite vegetation data can predict the soil respiration rates on the ground.
+
+Using your long dataset that has the 40.04 value replaced with 4.04, merge the EVI dataset (`EVI.csv`) with the soil respiration data. You will notice that the EVI dataset does not currently have unique indicators (or key values) to merge with the soil respiration data.  You can do two things, either 1) join based on multiple columns (save as `new1`), or 2) create a unique identifier column for both datasets (using for example, `mutate()` and `paste()` to combine the similar columns) and join with the unique ID column (save as `new2`). Practice both below. (NOTE: we would not ever recommend storing your data in this way.  There should always be plot numbers or some other unique value for each of your datasets.)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+Using `new1` (the dataset without the extra columns - e.g., only `Rs` and `Crop`, not `Rs.x`, `Rs.y`, `Crop.x`, `Crop.y`), create a graph that demonstrates how EVI influences `Rs` for each crop type. Include the trend line for each crop type. Make sure your axes are understandable.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+```
+
+
+# Behavioral plasticity and novel morphologies
+
+Allf and colleagues (2016)^[Allf BC, Durst PAP, Pfennig DW. 2016. Behavioral Plasticity and the Origins of Novelty: The Evolution of the Rattlesnake Rattle. Am Nat 188:475–483.] studied the association between a pre-existing behavior -- tail-shaking in the presence of a predator -- and a novel morphology -- the rattlesnake rattle. They measured the percent of individuals exhibiting tail vibration, and mean duration and rate of tail shaking behavior in a range of species across the clades Viperidae (rattlesnakes and their relatives) and Colubridae (a large clade of mostly non-venomous snakes). Additionally, the authors estimated the phylogenetic distance from each clade to the rattlesnake clade.
+
+The authors provide their data via Dryad in three files: `rattle_probability.csv`, `rattle_duration.csv`, and `rattle_rate.csv`. Examine the files in a text editor or Excel, and start by reading each of these into separate tibbles.
+
+```{r}
+
+```
+
+The columns in each are:
+
+Probability
+
+- `Species`: Species
+- `Species'DistanceToRattlesnakeNode`: Phylogenetic distance to rattlesnake clade
+- `PercentOfSpeciesVibrating`: Percent of vibrating species in the species
+
+Duration
+
+- `Species`: Species
+- `Species'DistanceToRattlesnakeNode`: Phylogenetic distance to rattlesnake clade
+- `Species'MeanDurationOfVibration`: Mean duration of tail vibration in the species
+
+Rate
+
+- `Species`: species
+- `Species'DistanceToRattlesnakeNode`: Phylogenetic distance to rattlesnake clade
+- `Species'MeanRateOfVibration`: Mean vibration rate
+
+The given column names are cumbersome to work with (note that some of the column names are wrapped in backticks because of the single quote in the name).
+
+Below, rename the columns to something more manageable: Distance, Probability, Duration, and Rate.
+
+```{r}
+
+```
+
+Looking at the tibbles, it appears that (for some unknown reason) the data are stored in alternating rows -- rows of data alternate with NA's, with the actual data starting in row 2. 
+
+Rather than fixing this manually, we will use the `slice()` function. If you provide `slice()` with a set of integers, it will keep only those rows. Generate the sequence of rows matching data and use this with `slice()` to remove the rows with `NA`. The function `nrow()` returns the number of rows in a tibble or data.frame. You can't use `nrow()` inside of tidy functions. If you choose to use tidy functions `n()` (with no arguments) returns the number of rows.
+
+Process each of the tibbles the same way to remove all the alternating NA rows.
+
+```{r}
+
+```
+
+Check each tibble to make sure that the rows now contain only data. Compare to the raw csv files to make sure that the first and last data rows match (i.e., ensure that all data rows are present).
+
+```{r}
+
+```
+
+Now we are at the point where we can join the tibbles. Because there are only three, the easiest way is to do this join is two steps:
+
+1. Join the first two into a new structure
+2. Join the third to the structure created in step 1
+
+If you had more than just a few tibbles to join, you might search for a more efficient solution than just joining them in pairs.
+
+Below, fully join the three tibbles into a single new tibble, keeping all rows in all tibbles. You will need to decide which columns to use for joining.
+
+```{r}
+
+```
+
+Inspect the resulting tibble for missing data. Below, summarize the Probability, Duration, and Rate columns by summing the logical `is.na()`.
+
+```{r}
+
+```
+
+How many `NA`s does each column have? Can you explain the pattern of missing data?
+
+> 
+
+We will leave these `NA` values in for now.
+
+To facilitate plotting, let's pivot the data to long format and make it tidy. Below, pivot the tibble by Probability, Duration, and Rate to a new tibble. Rename the columns as you wish. You should end up with a tibble with four columns: Species, Distance, one for the variable (Probability, Duration, or Rate), and one for the value.
+
+```{r}
+
+```
+
+Plot the "long" tibble you created above. Distance should be on the x-axis and the value on the y-axis. Facet the plot with the variable name by rows. See if you can figure out how to "free" the y-axis scale in the call to `facet_grid()`, so that each panel has it's own scale.
+
+```{r}
+
+```
+
+Add a linear fit to the plot above.
+
+```{r}
+
+```
+
+What pattern do you observe about the relationship between Duration, Probability, and Rate as a function of Distance to the rattlesnake clade?
+
+> 
+
+Return to the "wide" tibble. Now plot Rate as a function of Duration, color the points by Distance, and add a linear fit.
+
+```{r}
+
+```
+
+From the standpoint of physiology, you might predict the higher rates of tail shaking would be associated with shorter durations of tail shaking to limit overall energy expenditure, because right rates might be more energetically demanding. 
+
+Based on the plot, what do you think of this hypothesis? Does there appear to be any association with Distance? Does this pattern agree with the plot above?
+
+> 
+
+Finally, think about the nature of the sample and of the data.
+
+Are these species-level data independent? Why or why not? Explain your answer.
+
+> 
+
+The authors provide the data for (and analyze) only species means. How would you suggest they improve analysis and reporting of their data?
+
+> 
+
+
+# Host Races in Goldenrod Gall Flies
+
+Goldenrod gall flies lay their eggs in the meristem of goldenrod plants, which then form a gall around the developing larvae. The larval fly develops inside and feeds on the golden rod, chews an exit tunnel, pupates inside the gall, and then emerges from the gall via the exit tunnel as an adult. In some areas, there are multiple species of goldenrods used as hosts by gall flies. Craig et al.^[Craig, T.P., Itami, J.K, Abrahamson, W.G., and Horner, J.D. 1993. Behavioral Evidence for Host-Race Formation in *Eurosta Solidaginis*. Evolution. 47(6): 1696-1710.] investigated whether host races (first stage toward speciation) have formed, leading to reproductive isolation between the two populations of gall flies using the different goldenrod species. 
+
+The original dataset is not available for this paper, but we've made a similar dataset based on the information given in the methods & results for this exercise. 
+
+Begin by reading in the mating dataset: `gallfly_mating.xlsx`. Here is information about the data contained in this excel sheet and how it was entered:
+
+- `fly_id`: The unique identifier for each fly coded as "s_" followed by a number. There should be a unique value in each row.
+- `plot`: The numeric id for each experimental plot containing a pair of goldenrod plants of each species (*altissima* and *gigantia*). These were numbered sequentially and should all be coded as a single number.
+- `genotype_alt`: The id for the *altissima* goldenrod genotype (line) in that plot. There are 18 genotypes and these are coded with "G" followed by a number. These were arbitrarily assigned to each of the lines used as an id.  
+- `genotype_gig`: The id for the *gigantia* goldenrod genotype (line) in that plot. There are 18 genotypes and these are coded with "G" followed by a number. These were arbitrarily assigned to each of the lines used as an id.  
+- `host_race`: The host race that fly belongs to (these are named for the host species so are also *altissima* and *gigantia*). These are coded as either "Alt" for *altissima* or "Gig" for *gigantia*. 
+- `plant_choice`: The plant species that the fly chose to lay eggs on. These are coded as either "Alt" for *altissima* or "Gig" for *gigantia*. 
+
+Missing values are entered as "NA" in this excel sheet so make sure to use `na = "NA"` when you read in the data. 
+
+Do some initial diagnostics to determine if the dataset matches what is described above. Check if the columns are the correct type (character, numeric, etc.), if the data has been coded consistently, etc. 
+
+Explain any errors that you find and correct them within R. Also check for and eliminate any rows with missing values. Then write out a new, cleaned dataset as a `.csv` file. 
+
+```{r}
+
+```
+
+Briefly explain the errors you identified and corrected:
+
+> 
+
+This experiment was done to ask the question of whether the gall fly host races showed a preference for ovipositing on their own host plant (i.e., that `Alt` races prefer `Alt` plants and `Gig` races prefer `Gig` plants).
+
+Each plot had a set of stems from each goldenrod species. A mated female fly was then placed in the cage for 24 hrs, after which the experimenters determined which species she oviposited on. The host race of the female fly is in column `host_race`. The species she chose to oviposit on is in column `plant_choice`. Determine the number of each host race that oviposited on their own host vs. the alternate host.
+
+For the pairwise combinations of `host_race` and `plant_choice`, tally up the number of ovipositions for each. Assign this tibble to `gall_counts`. You can print a nice copy of this table to your Rmd output with the code `knitr::kable(gall_counts)`. Add this code to your chunk after your tallying code.
+
+```{r}
+
+```
+
+Now for each race, calculate the proportion of ovipositions on the matching host plant. One way is to use logical subsetting of the `gall_counts` tibble.
+
+```{r}
+
+```
+
+Give a brief description of these summarized results here:
+
+> 
+
+Let's explore how likely these results would be if gall flies choose their oviposition plant randomly (without considering host species). To make things easier and avoid typos, use the counts you generated to assign four numbers to R objects so you can easily use these. Assign the following four quantities: 1) the total number of observations for flies of the host race *altissima*, 2) the total number of observations for flies of the host race *gigantia*, 3) the number of *altissima* flies that chose to oviposit on *gigantia* (the alternate host), and 4) the number of *gigantia* flies that chose to oviposit on *altissima* (the alternate host). There is an example for (1) below. `pull()` is used as the last pipe to return just a single number.
+
+```{r}
+# Uncomment this code
+# N_alt <- gall_counts %>% 
+#   filter(host_race == "Alt") %>% 
+#   summarize(sum(n)) %>% 
+#   pull()
+
+```
+
+Let's first consider the gall flies of the host race *altissima*. We can use the `rbinom` function to see what we would expect to observe if the probability of choosing *altissima* or *gigantia* is equal for a given host race. 
+
+Here is how you would generate one possible result for this scenario using the binomial distribution:
+
+```{r}
+# get one sample of 33 "flies" that choose between the two plants randomly
+# this will give you the number that choose one host plant (let's say altissima)
+
+# Uncomment this code
+# rbinom(1, N_alt, 0.5)
+```
+
+Change the first number (n = 1 above) to generate a bunch of these samples to see what kind of results you could get. Make a tibble to hold 1000 of these samples. Make a histogram of these values to see the likelihood of observing different counts for this host race. 
+
+```{r}
+
+```
+
+Add your observed number of *gigantia* choices to your histogram as a vertical red line. Assign this plot to an object so you can use it later.
+
+```{r}
+
+```
+
+Now make the same plot for your *gigantia* results. 
+
+```{r}
+
+```
+
+We can use the `plot_grid` function that is part of the `cowplot` package to put these histograms on a single plot. Look at the help for this function and the example code at the bottom of the help to make a plot with the two histograms stacked vertically. Label your plots with "A" and "B".
+
+```{r}
+
+```
+
+Were this for a publication, you might also want to go back to your original plots and standardize the x-axis limits and histogram bin widths to make sure they are comparable. However, you do not need to here.
+
+Now, for each of the host races, calculate the probability of observing *exactly* the number of choices of the alternate host plant if the flies are actually choosing randomly. 
+
+```{r}
+
+```
+
+Now calculate the probability of observing the number of choices of the alternate host plant *or any count lower than observed*, if the flies are actually choosing randomly. 
+
+```{r}
+
+```
+
+Give a brief interpretation of what you can say about how likely it is to observe your result if gall flies are choosing plants randomly.
+
+> 
